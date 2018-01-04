@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <title></title>
+    <style media="screen">
+      .connected {color: green;}
+      .disconnected {color: red;}
+      .normal_msg {color: black;}
+      .alert_msg {color: red;}
+      #div2 {display: none;}
+    </style>
+    <script src="http://localhost:8081/socket.io/socket.io.js" charset="utf-8"></script>
+    <script>
+    window.onload=function(){
+      var conn=document.getElementById('conn');
+
+      var oDiv1=document.getElementById('div1');
+      var oDiv2=document.getElementById('div2');
+
+      var cur_user='';
+
+      //连接
+      var sock=io.connect('ws://localhost:8081/');
+
+      sock.on('connect',function(){
+        conn.className='connected';
+        conn.innerHTML='已连接';
+      });
+      sock.on('disconnect',function(){
+        conn.className='disconnected';
+        conn.innerHTML='无法连接到服务器';
+      });
+
+      //登录、注册
+      var oBtnReg=document.getElementById('reg_btn');
+      var oBtnLogin=document.getElementById('login_btn');
+      var oTxtUser=document.getElementById('username');
+      var oTxtPass=document.getElementById('password');
+
+      sock.on('reg_result',function(res){
+        if(res.ok){
+          alert('注册成功');
+        }else{
+          alert('失败：'+res.msg);
+        }
+      });
+      oBtnReg.onclick=function(){
+        sock.emit('reg',oTxtUser.value,oTxtPass.value);
+      };
+
+      sock.on('login_result',function(res){
+        if(res.ok){
+          alert('登录成功');
+          oDiv1.style.display='none';
+          oDiv2.style.display='block';
+          cur_user=oTxtUser.value;
+        }else{
+          alert('失败：'+res.msg);
+        }
+      });
+      oBtnLogin.onclick=function(){
+        sock.emit('login',oTxtUser.value,oTxtPass.value);
+      };
+
+      //发送信息
+      var oBtnSend=document.getElementById('btn_send');
+      var oTxtContent=document.getElementById('txt_content');
+      var oUl=document.getElementById('ul1');
+
+      oBtnSend.onclick=function(){
+        //识别@
+        var str=oTxtContent.value;
+        var arr=str.match(/@\w{8,16}/);
+
+        var to=null;
+
+        if(arr!=null){
+          to=arr[0];
+          to=to.substring(1);
+        }
+
+        sock.emit('post_msg', str, to);
+
+        var oLi=document.createElement('li');
+        oLi.className='normal_msg';
+
+        oLi.innerHTML='<h4>'+cur_user+'</h4>'+str;
+
+        oUl.appendChild(oLi);
+
+        oTxtContent.value=null;
+      };
+      sock.on('post_msg_result',function(json){
+        var oLi=document.createElement('li');
+
+        if(json.to==cur_user){
+          oLi.className='alert_msg';
+        }else{
+          oLi.className='normal_msg';
+        }
+        oLi.innerHTML='<h4>'+json.from+'</h4>'+json.text;
+
+        oUl.appendChild(oLi);
+      });
+    };
+    </script>
+  </head>
+  <body>
+    <div class="connected" id="conn">
+    </div>
+    <div class="" id="div1">
+      用户名：
+      <input type="text" name="name" value="" id="username">
+      <br>
+      密码：
+      <input type="password" name="name" value="" id="password">
+      <br>
+      <input type="button" name="name" value="登录" id="login_btn">
+      <input type="button" name="name" value="注册" id="reg_btn">
+    </div>
+    <div class="" id="div2">
+      <textarea name="name" rows="8" cols="40" id="txt_content"></textarea>
+      <input type="button" name="name" value="发送" id="btn_send">
+      <ul id="ul1">
+        <!--<li class="alert_msg">
+          <h4>名字</h4>
+          内容内容内容内容内容内容内容内容内容内容
+        </li>-->
+      </ul>
+    </div>
+  </body>
+
+
+
+
+
+
+
+
+</html>

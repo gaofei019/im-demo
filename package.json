@@ -1,0 +1,23 @@
+{
+  "name": "im-demo",
+  "version": "1.0.0",
+  "main": "websocket-chat-server.js",
+  "dependencies": {
+    "socket.io": "^2.0.4"
+  },
+  "devDependencies": {},
+  "scripts": {
+    "test": "node websocket-chat-server.js"
+  },
+  "author": "gaofei",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/gaofei019/im-demo.git"
+  },
+  "bugs": {
+    "url": "https://github.com/gaofei019/im-demo/issues"
+  },
+  "homepage": "https://github.com/gaofei019/im-demo#readme",
+  "description": ""
+}
